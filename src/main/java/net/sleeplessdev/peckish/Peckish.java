@@ -31,6 +31,7 @@ public final class Peckish {
     @Mod.EventHandler
     public void onPostInit(FMLPostInitializationEvent event) {
         int totalFoods = 0;
+
         for (Item item : ForgeRegistries.ITEMS) {
             if (!(item instanceof ItemFood)) continue;
             CreativeTabs tab = item.getCreativeTab();
@@ -55,9 +56,8 @@ public final class Peckish {
                 }
             }
         }
-        if (totalFoods > 0) {
-            LOGGER.info("Successfully registered {} foods to ore name \"{}\".", totalFoods, ModConfig.oreName);
-        }
+
+        LOGGER.info("Successfully registered {} foods to ore name \"{}\".", totalFoods, ModConfig.oreName);
     }
 
     @Config(modid = Peckish.ID)
