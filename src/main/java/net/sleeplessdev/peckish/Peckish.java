@@ -80,7 +80,7 @@ public final class Peckish {
     @Mod.EventBusSubscriber(modid = Peckish.ID)
     public static final class ModConfig {
         @Config.Name("ore_name")
-        @Config.Comment("The entry name foods should be registered to in the Ore Dictionary.")
+        @Config.Comment("The entry name foods should be registered to in the ore dictionary.")
         @Config.RequiresMcRestart
         public static String oreName = "itemFood";
 
