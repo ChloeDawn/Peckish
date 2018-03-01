@@ -1,7 +1,10 @@
 package net.sleeplessdev.peckish;
 
+import net.minecraft.block.BlockCake;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemBlockSpecial;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -33,31 +36,44 @@ public final class Peckish {
         int totalFoods = 0;
 
         for (Item item : ForgeRegistries.ITEMS) {
-            if (!(item instanceof ItemFood)) continue;
-            CreativeTabs tab = item.getCreativeTab();
-            if (tab == null) tab = CreativeTabs.FOOD;
-            NonNullList<ItemStack> subItems = NonNullList.create();
-            item.getSubItems(tab, subItems);
-            for (ItemStack stack : subItems) {
-                if (stack.isEmpty()) continue;
-                int heal = ((ItemFood) item).getHealAmount(stack);
-                float sat = ((ItemFood) item).getSaturationModifier(stack);
-                if (!ModConfig.skipEmptyFoods || heal > 0 || sat > 0) {
-                    OreDictionary.registerOre(ModConfig.oreName, stack);
-                    if (stack.hasTagCompound()) {
-                        LOGGER.debug("Registered food stack <{}#{}[{}]>",
-                                stack.getItem().getRegistryName(),
-                                stack.getMetadata(),
-                                stack.getTagCompound());
-                    } else LOGGER.debug("Registered food stack <{}#{}>",
-                            stack.getItem().getRegistryName(),
-                            stack.getMetadata());
-                    totalFoods++;
+            if (item instanceof ItemBlockSpecial) {
+                if (((ItemBlockSpecial) item).getBlock() instanceof BlockCake) {
+                    totalFoods = registerFoodStack(new ItemStack(item), totalFoods);
+                }
+            } else if (item instanceof ItemBlock) {
+                if (((ItemBlock) item).getBlock() instanceof BlockCake) {
+                    totalFoods = registerFoodStack(new ItemStack(item), totalFoods);
+                }
+            } else if (item instanceof ItemFood) {
+                CreativeTabs tab = item.getCreativeTab();
+                if (tab == null) tab = CreativeTabs.FOOD;
+                NonNullList<ItemStack> subItems = NonNullList.create();
+                item.getSubItems(tab, subItems);
+                for (ItemStack stack : subItems) {
+                    if (stack.isEmpty()) continue;
+                    int heal = ((ItemFood) item).getHealAmount(stack);
+                    float sat = ((ItemFood) item).getSaturationModifier(stack);
+                    if (!ModConfig.skipEmptyFoods || heal > 0 || sat > 0) {
+                       totalFoods = registerFoodStack(stack, totalFoods);
+                    }
                 }
             }
         }
 
         LOGGER.info("Successfully registered {} foods to ore name \"{}\".", totalFoods, ModConfig.oreName);
+    }
+
+    private static int registerFoodStack(ItemStack stack, int total) {
+        OreDictionary.registerOre(ModConfig.oreName, stack);
+        if (stack.hasTagCompound()) {
+            LOGGER.debug("Registered food stack <{}#{}[{}]>",
+                    stack.getItem().getRegistryName(),
+                    stack.getMetadata(),
+                    stack.getTagCompound());
+        } else LOGGER.debug("Registered food stack <{}#{}>",
+                stack.getItem().getRegistryName(),
+                stack.getMetadata());
+        return ++total;
     }
 
     @Config(modid = Peckish.ID)
