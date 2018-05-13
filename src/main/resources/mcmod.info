@@ -3,7 +3,6 @@
         "modid": "peckish",
         "name": "Peckish",
         "version": "${version}",
-        "mcversion": "[1.12,1.13)",
         "authorList": [ "InsomniaKitten" ]
     }
 ]

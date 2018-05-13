@@ -1,13 +1,11 @@
 package net.sleeplessdev.peckish;
 
 import net.minecraft.block.BlockCake;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBlockSpecial;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -19,23 +17,30 @@ import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = Peckish.ID,
-     name = Peckish.NAME,
-     version = Peckish.VERSION,
-     dependencies = "after:*")
-public final class Peckish {
+import java.util.ArrayList;
+import java.util.List;
 
+@Mod(
+        modid = Peckish.ID,
+        name = Peckish.NAME,
+        version = Peckish.VERSION,
+        dependencies = Peckish.DEPENDENCIES,
+        acceptedMinecraftVersions = Peckish.MC_VERSIONS
+)
+public final class Peckish {
     public static final String ID = "peckish";
     public static final String NAME = "Peckish";
     public static final String VERSION = "%VERSION%";
+    public static final String DEPENDENCIES = "after:*";
+    public static final String MC_VERSIONS = "[1.10,1.11)";
 
-    public static final Logger LOGGER = LogManager.getLogger(Peckish.ID);
+    private static final Logger LOGGER = LogManager.getLogger(Peckish.ID);
 
     @Mod.EventHandler
-    public void onPostInit(FMLPostInitializationEvent event) {
+    protected void onPostInitialization(FMLPostInitializationEvent event) {
         int totalFoods = 0;
 
-        for (Item item : ForgeRegistries.ITEMS) {
+        for (final Item item : ForgeRegistries.ITEMS) {
             if (item instanceof ItemBlockSpecial) {
                 if (((ItemBlockSpecial) item).getBlock() instanceof BlockCake) {
                     totalFoods = registerFoodStack(new ItemStack(item), totalFoods);
@@ -45,56 +50,53 @@ public final class Peckish {
                     totalFoods = registerFoodStack(new ItemStack(item), totalFoods);
                 }
             } else if (item instanceof ItemFood) {
-                CreativeTabs tab = item.getCreativeTab();
-                if (tab == null) tab = CreativeTabs.FOOD;
-                NonNullList<ItemStack> subItems = NonNullList.create();
-                item.getSubItems(tab, subItems);
-                for (ItemStack stack : subItems) {
-                    if (stack.isEmpty()) continue;
-                    int heal = ((ItemFood) item).getHealAmount(stack);
-                    float sat = ((ItemFood) item).getSaturationModifier(stack);
-                    if (!ModConfig.skipEmptyFoods || heal > 0 || sat > 0) {
-                       totalFoods = registerFoodStack(stack, totalFoods);
-                    }
+                final List<ItemStack> subItems = new ArrayList<>();
+                item.getSubItems(item, item.getCreativeTab(), subItems);
+                for (final ItemStack stack : subItems) {
+                    if (stack == null) continue;
+                    if (ModConfig.skip_empty_foods) {
+                        final int heal = ((ItemFood) item).getHealAmount(stack);
+                        final float sat = ((ItemFood) item).getSaturationModifier(stack);
+                        if (heal > 0 || sat > 0) {
+                            totalFoods = registerFoodStack(stack, totalFoods);
+                        }
+                    } else totalFoods = registerFoodStack(stack, totalFoods);
                 }
             }
         }
 
-        LOGGER.info("Successfully registered {} foods to ore name \"{}\".", totalFoods, ModConfig.oreName);
+        Peckish.LOGGER.info("Successfully registered {} foods to ore name \"{}\".", totalFoods, ModConfig.ore_name);
     }
 
-    private static int registerFoodStack(ItemStack stack, int total) {
-        OreDictionary.registerOre(ModConfig.oreName, stack);
+    private int registerFoodStack(ItemStack stack, int total) {
+        OreDictionary.registerOre(ModConfig.ore_name, stack);
         if (stack.hasTagCompound()) {
-            LOGGER.debug("Registered food stack <{}#{}[{}]>",
+            Peckish.LOGGER.debug("Registered food stack <{}#{}[{}]>",
                     stack.getItem().getRegistryName(),
                     stack.getMetadata(),
                     stack.getTagCompound());
-        } else LOGGER.debug("Registered food stack <{}#{}>",
+        } else Peckish.LOGGER.debug("Registered food stack <{}#{}>",
                 stack.getItem().getRegistryName(),
                 stack.getMetadata());
         return ++total;
     }
 
+    @Mod.EventBusSubscriber
     @Config(modid = Peckish.ID)
-    @Mod.EventBusSubscriber(modid = Peckish.ID)
     public static final class ModConfig {
-        @Config.Name("ore_name")
         @Config.Comment("The entry name foods should be registered to in the ore dictionary.")
-        @Config.RequiresMcRestart
-        public static String oreName = "itemFood";
+        public static String ore_name = "itemFood";
 
-        @Config.Name("skip_empty_foods")
         @Config.Comment("Should food items be skipped if they have no hunger or saturation values?")
-        @Config.RequiresMcRestart
-        public static boolean skipEmptyFoods = true;
+        public static boolean skip_empty_foods = true;
+
+        private ModConfig() {}
 
         @SubscribeEvent
-        public static void onConfigChanged(ConfigChangedEvent event) {
+        protected static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
             if (Peckish.ID.equals(event.getConfigID())) {
-                ConfigManager.sync(Peckish.ID, Config.Type.INSTANCE);
+                ConfigManager.load(Peckish.ID, Config.Type.INSTANCE);
             }
         }
     }
-
 }

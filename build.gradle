@@ -1,24 +1,26 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://files.minecraftforge.net/maven' }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 def modVersion= '1.0.0'
-def mcfVersion= '1.12.2-14.23.2.2623'
-def mcpMappings= 'snapshot_20180301'
-def jeiVersion= '1.12.2:4.8.5.159'
+def mcfVersion= '1.10.2-12.18.3.2511'
+def mcpMappings= 'stable_29'
+def jeiVersion= '1.10.2:3.14.8.422'
 
-version = "1.12-$modVersion"
+version = "1.10-$modVersion"
 group = 'net.sleeplessdev.peckish'
 archivesBaseName = 'Peckish'
+
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 minecraft {
     version = mcfVersion
@@ -29,7 +31,7 @@ minecraft {
 }
 
 repositories {
-    maven { url 'http://dvs1.progwml6.com/files/maven' }
+    maven { url = 'http://dvs1.progwml6.com/files/maven' }
 }
 
 dependencies {
@@ -38,10 +40,10 @@ dependencies {
 
 processResources {
     from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info', 'pack.mcmeta'
+        include 'mcmod.info'
         expand 'version': modVersion
     }
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info', 'pack.mcmeta'
+        exclude 'mcmod.info'
     }
 }
