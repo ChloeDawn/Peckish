@@ -23,14 +23,12 @@ import org.apache.logging.log4j.Logger;
         modid = Peckish.ID,
         name = Peckish.NAME,
         version = Peckish.VERSION,
-        dependencies = Peckish.DEPENDENCIES,
         acceptedMinecraftVersions = Peckish.MC_VERSIONS
 )
 public final class Peckish {
     public static final String ID = "peckish";
     public static final String NAME = "Peckish";
     public static final String VERSION = "%VERSION%";
-    public static final String DEPENDENCIES = "after:*";
     public static final String MC_VERSIONS = "[1.12,1.13)";
 
     private static final Logger LOGGER = LogManager.getLogger(Peckish.ID);
