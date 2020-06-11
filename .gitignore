@@ -9,7 +9,6 @@ eclipse/
 
 # idea
 .idea/
-*.iml
 *.ipr
 *.iws
 out/
@@ -18,6 +17,3 @@ out/
 .gradle/
 build/
 run/
-
-# project
-docs/

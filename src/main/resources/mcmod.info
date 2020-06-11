@@ -2,7 +2,12 @@
     {
         "modid": "peckish",
         "name": "Peckish",
-        "version": "${version}",
-        "authorList": [ "InsomniaKitten" ]
+        "description": "Registers all food items to an ore dictionary name",
+        "version": "$version",
+        "authorList": [ "Chloe Dawn" ],
+        "url": "https://github.com/ChloeDawn/Peckish",
+        "useDependencyInformation": true,
+        "dependencies": [ "forge@[14.23.5.2854,)" ],
+        "requiredMods": [ "forge@[14.23.5.2854,)" ]
     }
 ]
