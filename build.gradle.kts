@@ -1,5 +1,6 @@
 plugins {
     id("net.minecraftforge.gradle") version "3.0.174"
+    id("com.wynprice.cursemaven") version "2.1.4"
 }
 
 group = "dev.sapphic"
@@ -19,6 +20,7 @@ minecraft {
 dependencies {
     minecraft("net.minecraftforge:forge:1.12.2-14.23.5.2854")
     implementation("org.checkerframework:checker-qual:3.4.0")
+    runtime(fg.deobf("curse.maven:jei:2822849"))
 }
 
 tasks.withType<ProcessResources> {
